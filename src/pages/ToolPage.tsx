@@ -10,6 +10,7 @@ import { IpChecker } from "@/components/tools/IpChecker";
 import { PortChecker } from "@/components/tools/PortChecker";
 import { SslChecker } from "@/components/tools/SslChecker";
 import { ColorPicker } from "@/components/tools/ColorPicker";
+import { Base64Encoder } from "@/components/tools/Base64Encoder";
 
 const toolComponents: Record<string, React.ComponentType> = {
   "qr-scanner": QrScanner,
@@ -21,6 +22,7 @@ const toolComponents: Record<string, React.ComponentType> = {
   "port-checker": PortChecker,
   "ssl-checker": SslChecker,
   "color-picker": ColorPicker,
+  "base64-encoder": Base64Encoder,
 };
 
 export default function ToolPage() {
