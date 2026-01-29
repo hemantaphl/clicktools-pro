@@ -6,6 +6,10 @@ import { PasswordStrength } from "@/components/tools/PasswordStrength";
 import { SubnetCalculator } from "@/components/tools/SubnetCalculator";
 import { HashGenerator } from "@/components/tools/HashGenerator";
 import { QrScanner } from "@/components/tools/QrScanner";
+import { IpChecker } from "@/components/tools/IpChecker";
+import { PortChecker } from "@/components/tools/PortChecker";
+import { SslChecker } from "@/components/tools/SslChecker";
+import { ColorPicker } from "@/components/tools/ColorPicker";
 
 const toolComponents: Record<string, React.ComponentType> = {
   "qr-scanner": QrScanner,
@@ -13,6 +17,10 @@ const toolComponents: Record<string, React.ComponentType> = {
   "password-strength": PasswordStrength,
   "subnet-calculator": SubnetCalculator,
   "hash-generator": HashGenerator,
+  "ip-checker": IpChecker,
+  "port-checker": PortChecker,
+  "ssl-checker": SslChecker,
+  "color-picker": ColorPicker,
 };
 
 export default function ToolPage() {
