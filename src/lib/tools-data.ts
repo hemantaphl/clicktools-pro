@@ -100,7 +100,7 @@ export const tools: Tool[] = [
     id: "base64-encoder",
     name: "Base64 Encoder",
     description: "Encode and decode text or files using Base64",
-    status: "coming-soon",
+    status: "available",
     category: "utilities",
     icon: FileCode,
     isNew: true,
