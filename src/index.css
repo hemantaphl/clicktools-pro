@@ -1,0 +1,330 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 270 50% 10%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 270 50% 10%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 270 50% 10%;
+    
+    --primary: 270 70% 50%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 270 50% 10%;
+    
+    --muted: 270 10% 94%;
+    --muted-foreground: 270 20% 40%;
+    
+    --accent: 160 70% 45%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 270 20% 90%;
+    --input: 270 20% 90%;
+    --ring: 270 70% 50%;
+    
+    --radius: 0.5rem;
+    
+    --surface: 0 0% 96%;
+    --surface-foreground: 270 50% 10%;
+  }
+
+  .dark {
+    --background: 270 30% 6%;
+    --foreground: 0 0% 100%;
+    
+    --card: 270 25% 10%;
+    --card-foreground: 0 0% 100%;
+    
+    --popover: 270 25% 10%;
+    --popover-foreground: 0 0% 100%;
+    
+    --primary: 270 70% 60%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 270 20% 15%;
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 270 15% 18%;
+    --muted-foreground: 270 10% 65%;
+    
+    --accent: 160 70% 50%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 270 20% 18%;
+    --input: 270 20% 18%;
+    --ring: 270 70% 60%;
+    
+    --surface: 270 25% 12%;
+    --surface-foreground: 0 0% 100%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    overscroll-behavior: none;
+    letter-spacing: -0.01em;
+  }
+  
+  body[data-lang="np"] {
+    font-family: 'Noto Sans Devanagari', 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+@layer utilities {
+  .app-container {
+    @apply max-w-md mx-auto w-full min-h-screen relative;
+  }
+  
+  .touch-target {
+    @apply min-h-[48px] min-w-[48px];
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+  }
+  
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}
+
+/* Native-like animations */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes page-exit {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes splash-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spring-scale {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.92);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes icon-pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-page-enter {
+  animation: page-enter 0.25s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-fade-up {
+  animation: fade-up 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-splash-in {
+  animation: splash-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-ripple {
+  animation: ripple 0.6s linear;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-spring-scale {
+  animation: spring-scale 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.animate-icon-pop {
+  animation: icon-pop 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Stagger children animations */
+.stagger-children > * {
+  animation: fade-up 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  opacity: 0;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0.03s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.06s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.09s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.12s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.15s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.18s; }
+.stagger-children > *:nth-child(7) { animation-delay: 0.21s; }
+.stagger-children > *:nth-child(8) { animation-delay: 0.24s; }
+.stagger-children > *:nth-child(9) { animation-delay: 0.27s; }
+.stagger-children > *:nth-child(10) { animation-delay: 0.30s; }
+.stagger-children > *:nth-child(11) { animation-delay: 0.33s; }
+.stagger-children > *:nth-child(12) { animation-delay: 0.36s; }
+
+/* Touch feedback - native spring feel */
+.touch-feedback {
+  @apply transition-transform duration-150;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.touch-feedback:active {
+  transform: scale(0.95);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 2px;
+}
+
+/* Native-like card press effect */
+.card-press {
+  @apply transition-all duration-150;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.card-press:active {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
