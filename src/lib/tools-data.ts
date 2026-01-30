@@ -181,8 +181,8 @@ export const tools: Tool[] = [
   {
     id: "age-calculator",
     name: "Age Calculator",
-    description: "Calculate age from birth date",
-    status: "coming-soon",
+    description: "Calculate age in AD & BS with date conversion",
+    status: "available",
     category: "others",
     icon: CalendarDays,
     isNew: true,
