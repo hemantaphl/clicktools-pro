@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "375898680830",
+    "project_id": "clicktools-pro",
+    "storage_bucket": "clicktools-pro.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:375898680830:android:2413ec37c36d141eb864af",
+        "android_client_info": {
+          "package_name": "com.hemantaphuyal.clicktoolspro"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "375898680830-r28vu4b3817r6696gnrv1u5um7dgor24.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hemantaphuyal.clicktoolspro",
+            "certificate_hash": "e3fcc4c2d03bffca9d5d5c3b38a892c09ea41f69"
+          }
+        },
+        {
+          "client_id": "375898680830-tfpgeb77jflhk5b9ki186v3aithlft65.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hemantaphuyal.clicktoolspro",
+            "certificate_hash": "8d4e53b1146b4839688cb4e99af661409fbf04d3"
+          }
+        },
+        {
+          "client_id": "375898680830-8e1pctsjmatvlg0hl3hb0vje87hucmp2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfy18pzstr5UGMh4ddRZhfB1mUu4VvzH4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "375898680830-8e1pctsjmatvlg0hl3hb0vje87hucmp2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

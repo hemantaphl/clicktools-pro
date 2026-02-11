@@ -1,6 +1,7 @@
 import { MapPin, Mail, Wrench } from "lucide-react";
 import { useApp } from "@/contexts/AppContext";
 import { StaticFooter } from "@/components/common/StaticFooter";
+import logo from "@/assets/logo.svg";
 
 export default function About() {
   const { t } = useApp();
@@ -10,7 +11,7 @@ export default function About() {
       {/* Logo Section */}
       <div className="flex flex-col items-center mb-8">
         <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center mb-4 shadow-lg shadow-primary/20">
-          <Wrench className="w-10 h-10 text-primary-foreground" />
+          <img src={logo} alt="ClickTools Logo" className="w-full h-full object-contain scale-100 rounded-md"/>
         </div>
         <h1 className="text-2xl font-bold text-foreground">ClickTools</h1>
         <span className="text-sm font-semibold text-primary">Pro</span>
@@ -30,7 +31,7 @@ export default function About() {
           <p className="text-xs font-semibold text-muted-foreground mb-1 uppercase tracking-wider">
             {t("about.developer")}
           </p>
-          <p className="font-bold text-xl text-foreground">Hemanta Phuyal</p>
+          <p className="font-bold text-xl text-foreground">{t("about.name")}</p>
         </div>
         
         <div className="flex items-center gap-4">
@@ -41,7 +42,7 @@ export default function About() {
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               {t("about.location")}
             </p>
-            <p className="font-semibold text-foreground">Kathmandu, Nepal</p>
+            <p className="font-semibold text-foreground">{t("about.address")}</p>
           </div>
         </div>
 
@@ -57,7 +58,7 @@ export default function About() {
               href="mailto:hello@hemantaphuyal.com" 
               className="font-semibold text-primary"
             >
-              hello@hemantaphuyal.com
+              app@hemantaphuyal.com
             </a>
           </div>
         </div>
@@ -65,7 +66,7 @@ export default function About() {
 
       {/* Version */}
       <div className="mt-8 text-center">
-        <p className="text-xs text-muted-foreground">Version 1.0.0</p>
+        <p className="text-xs text-muted-foreground">Version 1.2.4</p>
       </div>
 
       <StaticFooter />

@@ -1,5 +1,6 @@
 import { Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
+import logo from "@/assets/logo.svg";
 
 interface LogoProps {
   size?: "sm" | "md" | "lg";
@@ -27,15 +28,17 @@ export function Logo({ size = "md", showText = true }: LogoProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <div className={cn(
-        "rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center",
-        sizes[size]
-      )}>
-        <Wrench className={cn("text-primary-foreground", iconSizes[size])} />
-      </div>
+      <div
+          className={cn(
+            "rounded-md bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center overflow-hidden",
+            sizes[size]
+          )}>
+          <img src={logo} alt="ClickTools Logo" className="w-full h-full object-contain scale-100"/>
+        </div>
+
       {showText && (
         <span className={cn("font-bold text-foreground", textSizes[size])}>
-          ClickTools
+          ClickTools Pro
         </span>
       )}
     </div>

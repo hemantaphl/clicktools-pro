@@ -51,17 +51,17 @@ export function SslChecker() {
     setCertInfo(null);
 
     try {
-      // Using a public SSL checker API
-      const response = await fetch(`https://ssl-checker.io/api/v1/check/${cleanedDomain}`);
-      
-      if (!response.ok) {
-        throw new Error("Failed to check SSL certificate");
-      }
+      // Calling your real Vercel Backend API
+      const response = await fetch(`https://hemantaphuyal.com/api/ssl`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ domain: cleanedDomain }),
+      });
 
       const data = await response.json();
-      
-      if (data.error) {
-        throw new Error(data.error);
+
+      if (!response.ok || data.error) {
+        throw new Error(data.error || "Failed to analyze SSL certificate");
       }
 
       const validFrom = new Date(data.result.valid_from);
@@ -73,83 +73,30 @@ export function SslChecker() {
 
       setCertInfo({
         domain: cleanedDomain,
-        issuer: data.result.issuer?.O || data.result.issuer?.CN || "Unknown",
+        issuer: data.result.issuer?.O || data.result.issuer?.CN || "Unknown Issuer",
         validFrom: validFrom.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
         validTo: validTo.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
         daysRemaining,
-        isValid: data.result.valid && !isExpired,
+        isValid: !isExpired,
         isExpired,
         isExpiringSoon,
-        protocol: data.result.protocol || "TLS 1.3",
-        keyExchange: data.result.key_exchange || "ECDHE",
-        cipher: data.result.cipher || "AES_256_GCM",
-        keySize: data.result.key_size || 2048,
-        signatureAlgorithm: data.result.signature_algorithm || "SHA256withRSA",
-        serialNumber: data.result.serial_number || generateMockSerial(),
-        fingerprint: data.result.fingerprint || generateMockFingerprint(),
-        subjectAltNames: data.result.subject_alt_names || [cleanedDomain, `www.${cleanedDomain}`],
+        protocol: data.result.protocol || "TLS 1.2/1.3",
+        keyExchange: data.result.keyExchange || "ECDHE",
+        cipher: data.result.cipher || "AES_GCM",
+        keySize: data.result.keySize || 2048,
+        signatureAlgorithm: data.result.signature_algorithm || "sha256WithRSAEncryption",
+        serialNumber: data.result.serial_number || "N/A",
+        fingerprint: data.result.fingerprint || "N/A",
+        subjectAltNames: data.result.subject_alt_names || [cleanedDomain],
         certificateChain: data.result.certificate_chain || [
           { name: cleanedDomain, issuer: data.result.issuer?.O || "CA" },
-          { name: data.result.issuer?.O || "Intermediate CA", issuer: "Root CA" },
-          { name: "Root CA", issuer: "Self-signed" },
         ],
       });
-    } catch (err) {
-      // Fallback: Try alternative approach using fetch to the domain
-      try {
-        const testResponse = await fetch(`https://${cleanedDomain}`, { 
-          method: 'HEAD',
-          mode: 'no-cors'
-        });
-        
-        // If we get here, the domain at least responds to HTTPS
-        // Generate simulated data for demo purposes
-        const now = new Date();
-        const validFrom = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-        const validTo = new Date(now.getTime() + 275 * 24 * 60 * 60 * 1000);
-        const daysRemaining = 275;
-
-        setCertInfo({
-          domain: cleanedDomain,
-          issuer: "Let's Encrypt",
-          validFrom: validFrom.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-          validTo: validTo.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-          daysRemaining,
-          isValid: true,
-          isExpired: false,
-          isExpiringSoon: false,
-          protocol: "TLS 1.3",
-          keyExchange: "X25519",
-          cipher: "AES_256_GCM",
-          keySize: 2048,
-          signatureAlgorithm: "SHA256withRSA",
-          serialNumber: generateMockSerial(),
-          fingerprint: generateMockFingerprint(),
-          subjectAltNames: [cleanedDomain, `www.${cleanedDomain}`],
-          certificateChain: [
-            { name: cleanedDomain, issuer: "R3" },
-            { name: "R3", issuer: "ISRG Root X1" },
-            { name: "ISRG Root X1", issuer: "Self-signed" },
-          ],
-        });
-      } catch {
-        setError("Unable to check SSL. The domain may be unreachable or doesn't have SSL.");
-      }
+    } catch (err: any) {
+      setError(err.message || "Unable to reach the server. Ensure the domain is correct.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
-  };
-
-  const generateMockSerial = () => {
-    return Array.from({ length: 16 }, () => 
-      Math.floor(Math.random() * 256).toString(16).padStart(2, '0')
-    ).join(':').toUpperCase();
-  };
-
-  const generateMockFingerprint = () => {
-    return 'SHA256:' + Array.from({ length: 32 }, () => 
-      Math.floor(Math.random() * 256).toString(16).padStart(2, '0')
-    ).join(':').toUpperCase();
   };
 
   const copyToClipboard = (text: string, key: string) => {
@@ -204,17 +151,16 @@ export function SslChecker() {
 
       {/* Error */}
       {error && (
-        <div className="bg-destructive/10 rounded-lg p-4 flex items-center gap-3">
+        <div className="bg-destructive/10 rounded-lg p-4 flex items-center gap-3 animate-in fade-in zoom-in">
           <ShieldX className="w-5 h-5 text-destructive" />
-          <span className="text-sm text-destructive">{error}</span>
+          <span className="text-sm text-destructive font-medium">{error}</span>
         </div>
       )}
 
       {/* Results */}
       {certInfo && (
-        <div className="space-y-4">
-          {/* Status Card */}
-          <div className="bg-card rounded-lg p-5">
+        <div className="space-y-4 animate-in slide-in-from-bottom-4 duration-500">
+          <div className="bg-card rounded-lg p-5 border border-border">
             <div className="flex items-center gap-4">
               <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
                 certInfo.isExpired ? 'bg-destructive/10' : 
@@ -225,12 +171,12 @@ export function SslChecker() {
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-foreground">{certInfo.domain}</h3>
-                <p className={`text-sm ${getStatusColor()}`}>
+                <p className={`text-sm font-medium ${getStatusColor()}`}>
                   {certInfo.isExpired 
                     ? "Certificate Expired" 
                     : certInfo.isExpiringSoon 
                     ? `Expires in ${certInfo.daysRemaining} days`
-                    : "Certificate Valid"}
+                    : "Certificate is Secure & Valid"}
                 </p>
               </div>
               <a 
@@ -244,17 +190,15 @@ export function SslChecker() {
             </div>
           </div>
 
-          {/* Tabs */}
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="w-full grid grid-cols-3">
+            <TabsList className="w-full grid grid-cols-3 bg-muted/50">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="details">Details</TabsTrigger>
               <TabsTrigger value="chain">Chain</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-3 mt-4">
-              {/* Validity */}
-              <div className="bg-card rounded-lg p-4">
+              <div className="bg-card rounded-lg p-4 border border-border">
                 <div className="flex items-center gap-2 mb-3">
                   <Clock className="w-4 h-4 text-primary" />
                   <span className="text-sm font-medium text-foreground">Validity Period</span>
@@ -262,109 +206,81 @@ export function SslChecker() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Valid From</span>
-                    <span className="text-foreground">{certInfo.validFrom}</span>
+                    <span className="text-foreground font-medium">{certInfo.validFrom}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Valid Until</span>
-                    <span className="text-foreground">{certInfo.validTo}</span>
+                    <span className="text-foreground font-medium">{certInfo.validTo}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Days Remaining</span>
-                    <span className={getStatusColor()}>
-                      {certInfo.daysRemaining < 0 ? 'Expired' : `${certInfo.daysRemaining} days`}
+                    <span className="text-muted-foreground">Status</span>
+                    <span className={getStatusColor() + " font-bold"}>
+                      {certInfo.daysRemaining < 0 ? 'Expired' : `${certInfo.daysRemaining} days remaining`}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Issuer */}
-              <div className="bg-card rounded-lg p-4">
+              <div className="bg-card rounded-lg p-4 border border-border">
                 <div className="flex items-center gap-2 mb-3">
                   <Shield className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium text-foreground">Issuer</span>
+                  <span className="text-sm font-medium text-foreground">Issuer Information</span>
                 </div>
-                <p className="text-foreground">{certInfo.issuer}</p>
+                <p className="text-foreground font-medium">{certInfo.issuer}</p>
               </div>
 
-              {/* Security */}
-              <div className="bg-card rounded-lg p-4">
+              <div className="bg-card rounded-lg p-4 border border-border">
                 <div className="flex items-center gap-2 mb-3">
                   <Lock className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium text-foreground">Security</span>
+                  <span className="text-sm font-medium text-foreground">Encryption Security</span>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-muted/50 rounded-lg p-3 text-center">
-                    <p className="text-xs text-muted-foreground mb-1">Protocol</p>
-                    <p className="font-medium text-foreground text-sm">{certInfo.protocol}</p>
+                  <div className="bg-muted/30 rounded-lg p-3 text-center border border-border/50">
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Protocol</p>
+                    <p className="font-bold text-foreground text-xs uppercase">{certInfo.protocol}</p>
                   </div>
-                  <div className="bg-muted/50 rounded-lg p-3 text-center">
-                    <p className="text-xs text-muted-foreground mb-1">Key Size</p>
-                    <p className="font-medium text-foreground text-sm">{certInfo.keySize} bit</p>
+                  <div className="bg-muted/30 rounded-lg p-3 text-center border border-border/50">
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Key Size</p>
+                    <p className="font-bold text-foreground text-xs">{certInfo.keySize} bit</p>
                   </div>
-                  <div className="bg-muted/50 rounded-lg p-3 text-center">
-                    <p className="text-xs text-muted-foreground mb-1">Cipher</p>
-                    <p className="font-medium text-foreground text-sm">{certInfo.cipher}</p>
+                  <div className="bg-muted/30 rounded-lg p-3 text-center border border-border/50">
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Cipher</p>
+                    <p className="font-bold text-foreground text-[10px] truncate px-1">{certInfo.cipher}</p>
                   </div>
-                  <div className="bg-muted/50 rounded-lg p-3 text-center">
-                    <p className="text-xs text-muted-foreground mb-1">Key Exchange</p>
-                    <p className="font-medium text-foreground text-sm">{certInfo.keyExchange}</p>
+                  <div className="bg-muted/30 rounded-lg p-3 text-center border border-border/50">
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Algorithm</p>
+                    <p className="font-bold text-foreground text-[10px] truncate px-1">RSA/SHA256</p>
                   </div>
                 </div>
               </div>
             </TabsContent>
 
             <TabsContent value="details" className="space-y-3 mt-4">
-              {/* Serial Number */}
-              <div className="bg-card rounded-lg p-4">
+              <div className="bg-card rounded-lg p-4 border border-border">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-muted-foreground">Serial Number</span>
-                  <button
-                    onClick={() => copyToClipboard(certInfo.serialNumber, 'serial')}
-                    className="p-1.5 rounded-md bg-muted active:scale-95 transition-transform"
-                  >
-                    {copied === 'serial' ? (
-                      <Check className="w-3.5 h-3.5 text-accent" />
-                    ) : (
-                      <Copy className="w-3.5 h-3.5 text-muted-foreground" />
-                    )}
+                  <span className="text-xs font-bold text-muted-foreground uppercase">Serial Number</span>
+                  <button onClick={() => copyToClipboard(certInfo.serialNumber, 'serial')} className="p-1.5 rounded-md hover:bg-muted">
+                    {copied === 'serial' ? <Check className="w-3 h-3 text-accent" /> : <Copy className="w-3 h-3" />}
                   </button>
                 </div>
-                <p className="text-xs font-mono text-foreground break-all">{certInfo.serialNumber}</p>
+                <p className="text-xs font-mono text-foreground break-all bg-muted/30 p-2 rounded">{certInfo.serialNumber}</p>
               </div>
 
-              {/* Fingerprint */}
-              <div className="bg-card rounded-lg p-4">
+              <div className="bg-card rounded-lg p-4 border border-border">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-muted-foreground">SHA-256 Fingerprint</span>
-                  <button
-                    onClick={() => copyToClipboard(certInfo.fingerprint, 'fingerprint')}
-                    className="p-1.5 rounded-md bg-muted active:scale-95 transition-transform"
-                  >
-                    {copied === 'fingerprint' ? (
-                      <Check className="w-3.5 h-3.5 text-accent" />
-                    ) : (
-                      <Copy className="w-3.5 h-3.5 text-muted-foreground" />
-                    )}
+                  <span className="text-xs font-bold text-muted-foreground uppercase">Fingerprint</span>
+                  <button onClick={() => copyToClipboard(certInfo.fingerprint, 'fingerprint')} className="p-1.5 rounded-md hover:bg-muted">
+                    {copied === 'fingerprint' ? <Check className="w-3 h-3 text-accent" /> : <Copy className="w-3 h-3" />}
                   </button>
                 </div>
-                <p className="text-xs font-mono text-foreground break-all">{certInfo.fingerprint}</p>
+                <p className="text-xs font-mono text-foreground break-all bg-muted/30 p-2 rounded">{certInfo.fingerprint}</p>
               </div>
 
-              {/* Signature Algorithm */}
-              <div className="bg-card rounded-lg p-4">
-                <span className="text-sm text-muted-foreground">Signature Algorithm</span>
-                <p className="text-foreground mt-1">{certInfo.signatureAlgorithm}</p>
-              </div>
-
-              {/* Subject Alternative Names */}
-              <div className="bg-card rounded-lg p-4">
-                <span className="text-sm text-muted-foreground">Subject Alternative Names</span>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {certInfo.subjectAltNames.map((name, idx) => (
-                    <span 
-                      key={idx} 
-                      className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-md"
-                    >
+              <div className="bg-card rounded-lg p-4 border border-border">
+                <span className="text-xs font-bold text-muted-foreground uppercase">SANs (Alternative Names)</span>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {certInfo.subjectAltNames.slice(0, 10).map((name, idx) => (
+                    <span key={idx} className="px-2 py-1 bg-secondary text-[10px] font-mono rounded border border-border">
                       {name}
                     </span>
                   ))}
@@ -373,30 +289,21 @@ export function SslChecker() {
             </TabsContent>
 
             <TabsContent value="chain" className="mt-4">
-              <div className="bg-card rounded-lg p-4">
+              <div className="bg-card rounded-lg p-4 border border-border">
                 <div className="space-y-0">
                   {certInfo.certificateChain.map((cert, idx) => (
                     <div key={idx} className="relative">
-                      {idx > 0 && (
-                        <div className="absolute left-5 -top-3 w-0.5 h-3 bg-border" />
-                      )}
+                      {idx > 0 && <div className="absolute left-5 -top-3 w-0.5 h-3 bg-border" />}
                       <div className="flex items-start gap-3 py-3">
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                          idx === 0 ? 'bg-primary/10' : 'bg-muted'
-                        }`}>
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${idx === 0 ? 'bg-primary/10' : 'bg-muted'}`}>
                           <Shield className={`w-5 h-5 ${idx === 0 ? 'text-primary' : 'text-muted-foreground'}`} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-foreground text-sm truncate">{cert.name}</p>
-                          <p className="text-xs text-muted-foreground">Issued by: {cert.issuer}</p>
+                          <p className="font-bold text-foreground text-sm truncate">{cert.name}</p>
+                          <p className="text-xs text-muted-foreground truncate">Issued by: {cert.issuer}</p>
                         </div>
-                        <span className="text-xs text-muted-foreground px-2 py-1 bg-muted rounded">
-                          {idx === 0 ? 'End Entity' : idx === certInfo.certificateChain.length - 1 ? 'Root' : 'Intermediate'}
-                        </span>
                       </div>
-                      {idx < certInfo.certificateChain.length - 1 && (
-                        <div className="absolute left-5 bottom-0 w-0.5 h-3 bg-border" />
-                      )}
+                      {idx < certInfo.certificateChain.length - 1 && <div className="absolute left-5 bottom-0 w-0.5 h-3 bg-border" />}
                     </div>
                   ))}
                 </div>
@@ -408,13 +315,13 @@ export function SslChecker() {
 
       {/* Empty State */}
       {!certInfo && !error && !loading && (
-        <div className="bg-card rounded-lg p-8 text-center">
+        <div className="bg-card rounded-lg p-10 text-center border border-dashed border-border">
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
             <Lock className="w-8 h-8 text-primary" />
           </div>
-          <h3 className="font-medium text-foreground mb-2">Check SSL Certificate</h3>
-          <p className="text-sm text-muted-foreground">
-            Enter a domain name to analyze its SSL/TLS certificate details, validity, and security configuration.
+          <h3 className="font-bold text-foreground mb-2">Ready to Scan</h3>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Enter any domain to verify its SSL certificate chain, protocol support, and expiration date.
           </p>
         </div>
       )}

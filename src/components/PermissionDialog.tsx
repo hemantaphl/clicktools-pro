@@ -1,12 +1,13 @@
-import { Bell, Camera, FolderOpen, Check, X } from "lucide-react";
+import { useState } from "react";
+import { Bell, Camera, FolderOpen, Check, X, ShieldCheck } from "lucide-react";
 import { usePermissions } from "@/contexts/PermissionsContext";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { requestAndRegisterPush } from "@/lib/push";
+import { haptic } from "@/lib/haptics";
 
 export function PermissionDialog() {
   const { 
     showPermissionDialog, 
-    requestNotificationPermission,
     requestCameraPermission,
     requestStoragePermission,
     completeFirstTimeSetup 
@@ -26,38 +27,46 @@ export function PermissionDialog() {
       id: "notifications",
       icon: Bell,
       title: "Notifications",
-      description: "Get updates about new tools and features",
-      request: requestNotificationPermission,
+      description: "Get updates about new tools and security features.",
+      request: requestAndRegisterPush, 
     },
     {
       id: "camera",
       icon: Camera,
       title: "Camera Access",
-      description: "Required for QR code scanning",
+      description: "Required for instant QR code scanning and detection.",
       request: requestCameraPermission,
     },
     {
       id: "storage",
       icon: FolderOpen,
       title: "Storage Access",
-      description: "Upload files for QR scanning and hash generation",
+      description: "Upload files for QR scanning and hash generation.",
       request: requestStoragePermission,
     },
   ];
 
   const handleAllow = async () => {
     const perm = permissions[step];
+    haptic.medium();
     const granted = await perm.request();
+    
     setStatuses(prev => ({ ...prev, [perm.id]: granted ? "granted" : "denied" }));
     
-    if (step < permissions.length - 1) {
-      setStep(step + 1);
-    } else {
-      completeFirstTimeSetup();
-    }
+    if (granted) haptic.success();
+
+    setTimeout(() => {
+      if (step < permissions.length - 1) {
+        setStep(step + 1);
+      } else {
+        haptic.notification();
+        completeFirstTimeSetup();
+      }
+    }, 400);
   };
 
   const handleSkip = () => {
+    haptic.light();
     const perm = permissions[step];
     setStatuses(prev => ({ ...prev, [perm.id]: "denied" }));
     
@@ -68,102 +77,101 @@ export function PermissionDialog() {
     }
   };
 
-  const handleSkipAll = () => {
-    completeFirstTimeSetup();
-  };
-
   const currentPerm = permissions[step];
   const IconComponent = currentPerm.icon;
 
   return (
-    <div className="fixed inset-0 z-[90] bg-background/95 backdrop-blur-sm flex items-center justify-center p-6 animate-fade-in">
-      <div className="w-full max-w-sm bg-card rounded-xl p-6 shadow-2xl border border-border animate-scale-in">
-        {/* Progress dots */}
-        <div className="flex justify-center gap-2 mb-8">
-          {permissions.map((_, i) => (
-            <div
-              key={i}
-              className={`h-1.5 rounded-full transition-all duration-300 ${
-                i === step 
-                  ? "w-6 bg-primary" 
-                  : i < step 
-                    ? "w-1.5 bg-accent" 
-                    : "w-1.5 bg-muted"
-              }`}
-            />
-          ))}
-        </div>
-
-        {/* Icon */}
-        <div className="flex justify-center mb-6">
-          <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center">
-            <IconComponent className="w-10 h-10 text-primary" />
+    <div className="fixed inset-0 z-[250] bg-background/80 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-500">
+      <div className="w-full max-w-sm bg-card rounded-[2.5rem] p-8 shadow-2xl border border-border/50 animate-in zoom-in-95 duration-300">
+        
+        {/* Progress Header */}
+        <div className="flex flex-col items-center mb-10">
+          <label className="text-[10px] uppercase tracking-[0.2em] font-black text-primary mb-4">
+            Security Setup • {step + 1} of {permissions.length}
+          </label>
+          <div className="flex gap-1.5">
+            {permissions.map((_, i) => (
+              <div 
+                key={i} 
+                className={`h-1 rounded-full transition-all duration-500 ${
+                  i === step ? "w-8 bg-primary" : i < step ? "w-2 bg-primary/40" : "w-2 bg-muted"
+                }`} 
+              />
+            ))}
           </div>
         </div>
 
-        {/* Content */}
-        <div className="text-center mb-8">
-          <h2 className="text-xl font-semibold text-foreground mb-2">
+        {/* Feature Icon */}
+        <div className="flex justify-center mb-8">
+          <div className="w-24 h-24 rounded-[2rem] bg-primary/10 flex items-center justify-center border border-primary/10 relative">
+            <IconComponent className="w-10 h-10 text-primary" />
+            <div className="absolute -top-1 -right-1 w-6 h-6 bg-background border border-border rounded-full flex items-center justify-center">
+               <ShieldCheck className="w-3 h-3 text-primary" />
+            </div>
+          </div>
+        </div>
+
+        {/* Text Content */}
+        <div className="text-center mb-10">
+          <h2 className="text-xl font-black text-foreground mb-3 tracking-tight">
             {currentPerm.title}
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground leading-relaxed px-2">
             {currentPerm.description}
           </p>
         </div>
 
-        {/* Status indicators */}
-        <div className="flex justify-center gap-4 mb-6">
+        {/* Status Indicators (Matches your Port Checker Results) */}
+        <div className="flex justify-center gap-4 mb-10">
           {permissions.map((perm, i) => {
             const status = statuses[perm.id as keyof typeof statuses];
-            const Icon = perm.icon;
+            const IsActive = i === step;
             return (
               <div
                 key={perm.id}
-                className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${
-                  status === "granted"
-                    ? "bg-accent/20"
+                className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-300 ${
+                  status === "granted" 
+                    ? "bg-green-500/10 border-green-500/20 text-green-500" 
                     : status === "denied"
-                      ? "bg-destructive/20"
-                      : i === step
-                        ? "bg-primary/20"
-                        : "bg-muted"
+                      ? "bg-red-500/10 border-red-500/20 text-red-500"
+                      : IsActive 
+                        ? "bg-primary border-primary shadow-lg shadow-primary/20 text-primary-foreground scale-110" 
+                        : "bg-secondary/40 border-border text-muted-foreground/40"
                 }`}
               >
-                {status === "granted" ? (
-                  <Check className="w-5 h-5 text-accent" />
-                ) : status === "denied" ? (
-                  <X className="w-5 h-5 text-destructive" />
-                ) : (
-                  <Icon className={`w-5 h-5 ${i === step ? "text-primary" : "text-muted-foreground"}`} />
-                )}
+                {status === "granted" ? <Check className="w-5 h-5" /> : 
+                 status === "denied" ? <X className="w-5 h-5" /> : 
+                 <perm.icon className="w-5 h-5" />}
               </div>
             );
           })}
         </div>
 
-        {/* Buttons */}
+        {/* Action Buttons */}
         <div className="flex flex-col gap-3">
           <Button 
             onClick={handleAllow}
-            className="w-full h-12 text-base font-medium"
+            className="w-full h-14 rounded-2xl text-base font-black shadow-lg shadow-primary/20 active:scale-95 transition-all"
           >
-            Allow
+            Allow Access
           </Button>
           <Button 
             variant="ghost" 
             onClick={handleSkip}
-            className="w-full h-10 text-muted-foreground"
+            className="w-full h-12 rounded-2xl text-[10px] uppercase font-black tracking-[0.15em] text-muted-foreground hover:bg-secondary/50"
           >
             Not Now
           </Button>
         </div>
 
-        {/* Skip all */}
         <button 
-          onClick={handleSkipAll}
-          className="w-full mt-4 text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+          onClick={() => {
+            haptic.heavy();
+            completeFirstTimeSetup();
+          }}
+          className="w-full mt-6 text-[10px] uppercase tracking-[0.2em] font-black text-muted-foreground/30 hover:text-primary transition-colors"
         >
-          Skip all permissions
+          Skip All Permissions
         </button>
       </div>
     </div>

@@ -9,10 +9,27 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
-  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  plugins: [
+    react(), 
+    mode === "development" && componentTagger()
+  ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  build: {
+    // This helps manage the 500kB warning
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        // Manual chunking splits large libraries into their own files
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-utils': ['@tanstack/react-query', 'lucide-react'],
+          'vendor-firebase': ['@capacitor-firebase/authentication', '@capacitor-firebase/messaging'],
+        },
+      },
     },
   },
 }));

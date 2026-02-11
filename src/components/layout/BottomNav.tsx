@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Home, Wrench, MoreHorizontal } from "lucide-react";
 import { useApp } from "@/contexts/AppContext";
 import { cn } from "@/lib/utils";
+import { haptic } from "@/lib/haptics";
 
 const navItems = [
   { path: "/", icon: Home, labelKey: "nav.home" },
@@ -19,8 +20,13 @@ export function BottomNav() {
     return location.pathname.startsWith(path);
   };
 
+  const handleNav = (path: string) => {
+    haptic.light();
+    navigate(path);
+  };
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background safe-area-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-t border-border">
       <div className="max-w-md mx-auto">
         <div className="h-16 px-4 flex items-center justify-around">
           {navItems.map((item) => {
@@ -28,9 +34,9 @@ export function BottomNav() {
             return (
               <button
                 key={item.path}
-                onClick={() => navigate(item.path)}
+                onClick={() => handleNav(item.path)}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1 touch-target touch-feedback rounded-2xl px-4 py-2 transition-colors",
+                  "flex flex-col items-center justify-center gap-1 touch-target touch-feedback rounded-2xl px-4 py-2 transition-all",
                   active && "bg-primary/10"
                 )}
               >
@@ -42,7 +48,7 @@ export function BottomNav() {
                 />
                 <span 
                   className={cn(
-                    "text-xs font-medium transition-colors",
+                    "text-[10px] font-bold uppercase tracking-wider transition-colors",
                     active ? "text-primary" : "text-muted-foreground"
                   )}
                 >
@@ -52,6 +58,9 @@ export function BottomNav() {
             );
           })}
         </div>
+        
+        {/* SAFE AREA SPACER: Important for Android 15 bottom gesture bar */}
+        <div style={{ height: 'env(safe-area-inset-bottom)' }} />
       </div>
     </nav>
   );

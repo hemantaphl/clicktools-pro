@@ -3,24 +3,36 @@ import { Logo } from "@/components/ui/Logo";
 
 interface SplashScreenProps {
   onComplete: () => void;
+  isReady: boolean; // Signal from the AppController
 }
 
-export function SplashScreen({ onComplete }: SplashScreenProps) {
+export function SplashScreen({ onComplete, isReady }: SplashScreenProps) {
   const [fadeOut, setFadeOut] = useState(false);
+  const [minTimeElapsed, setMinTimeElapsed] = useState(false);
 
+  // 1. Minimum time the splash should show (for branding/consistency)
   useEffect(() => {
     const timer = setTimeout(() => {
-      setFadeOut(true);
-      setTimeout(onComplete, 400);
-    }, 1800);
+      setMinTimeElapsed(true);
+    }, 1800); // Show for at least 1.8 seconds
 
     return () => clearTimeout(timer);
-  }, [onComplete]);
+  }, []);
+
+  // 2. Logic to actually hide the splash screen
+  useEffect(() => {
+    // Only fade out if both the timer is done AND the home page is ready
+    if (minTimeElapsed && isReady) {
+      setFadeOut(true);
+      const timer = setTimeout(onComplete, 400); // Match transition duration
+      return () => clearTimeout(timer);
+    }
+  }, [minTimeElapsed, isReady, onComplete]);
 
   return (
     <div
-      className={`fixed inset-0 z-[100] bg-background flex flex-col items-center justify-center transition-opacity duration-400 ${
-        fadeOut ? "opacity-0" : "opacity-100"
+      className={`fixed inset-0 z-[500] bg-background flex flex-col items-center justify-center transition-opacity duration-400 ease-in-out ${
+        fadeOut ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
     >
       <div className="flex flex-col items-center gap-6 animate-splash-in">
@@ -29,10 +41,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
           <Logo size="lg" />
         </div>
         <div className="flex flex-col items-center gap-2">
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">
-            ClickTools Pro
-          </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground uppercase tracking-[0.2em] font-medium">
             Premium Utility Tools
           </p>
         </div>

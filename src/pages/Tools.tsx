@@ -8,7 +8,7 @@ import { useApp } from "@/contexts/AppContext";
 export default function Tools() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<ToolCategory | "all">("all");
-  const { language } = useApp();
+  const { language, t } = useApp();
 
   const filteredTools = useMemo(() => {
     let result = getToolsByCategory(activeCategory);
@@ -31,9 +31,9 @@ export default function Tools() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-foreground">All Tools</h1>
+          <h1 className="text-xl font-bold text-foreground">{t("tools.all")}</h1>
           <p className="text-sm text-muted-foreground">
-            {availableCount} available • {totalCount - availableCount} coming soon
+            {availableCount} {t("status.available")} • {totalCount - availableCount} {t("status.coming")}
           </p>
         </div>
       </div>

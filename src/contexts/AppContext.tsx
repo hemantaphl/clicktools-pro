@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { Preferences } from '@capacitor/preferences';
+import { Device } from '@capacitor/device';
 
 type Theme = "system" | "light" | "dark";
 type Language = "en" | "np";
@@ -19,6 +21,7 @@ const translations: Record<string, Record<Language, string>> = {
   "nav.home": { en: "Home", np: "गृह" },
   "nav.tools": { en: "Tools", np: "उपकरणहरू" },
   "nav.more": { en: "More", np: "थप" },
+  "index.welcome": {en: "Welcome back", np: "स्वागत छ"},
   "section.top": { en: "Top Tools", np: "शीर्ष उपकरणहरू" },
   "section.new": { en: "New Tools", np: "नयाँ उपकरणहरू" },
   "section.other": { en: "Other Tools", np: "अन्य उपकरणहरू" },
@@ -26,70 +29,106 @@ const translations: Record<string, Record<Language, string>> = {
   "status.coming": { en: "Coming Soon", np: "चाँडै आउँदैछ" },
   "button.launch": { en: "Launch Tool", np: "उपकरण सुरु गर्नुहोस्" },
   "search.placeholder": { en: "Search tools...", np: "उपकरणहरू खोज्नुहोस्..." },
+  "tools.all": {en: "All Tools", np: "सबै उपकरणहरू"},
   "more.theme": { en: "Theme", np: "थीम" },
   "more.language": { en: "Language", np: "भाषा" },
   "more.about": { en: "About", np: "बारेमा" },
+  "more.contact": { en: "Contact", np: "सम्पर्क" },
   "more.privacy": { en: "Privacy Policy", np: "गोपनीयता नीति" },
+  "more.help&support": {en: "Help & Support", np: "सहायता र समर्थन"},
+  "more.shareapp": {en: "Share App", np: "एप शेयर गर्नुहोस्"},
+  "more.rateapp": {en: "Rate App", np: "एपलाई मूल्याङ्कन गर्नुहोस्"},
+  "more.checkforupdates": {en: "Check for Updates", np: "अपडेट जाँच गर्नुहोस्"},
+  "more.signin": {en: "Sign in to ClickTools Pro", np: "ClickTools Pro मा साइन इन गर्नुहोस्"},
+  "more.signout": {en: "Sign Out", np: "साइन आउट गर्नुहोस्"},
   "theme.system": { en: "System", np: "प्रणाली" },
   "theme.light": { en: "Light", np: "उज्यालो" },
   "theme.dark": { en: "Dark", np: "अँध्यारो" },
-  "error.title": { en: "Oops! Something went wrong", np: "उफ्! केही गलत भयो" },
-  "error.retry": { en: "Retry", np: "पुन: प्रयास गर्नुहोस्" },
-  "error.back": { en: "Go Back", np: "पछाडि जानुहोस्" },
   "about.title": { en: "About ClickTools Pro", np: "क्लिकटूल्स प्रो बारेमा" },
-  "about.description": { en: "ClickTools Pro is a comprehensive tools directory designed to provide useful utilities for security professionals, network administrators, and everyday users. Our mission is to make powerful tools accessible and easy to use.", np: "क्लिकटूल्स प्रो एक व्यापक उपकरण निर्देशिका हो जुन सुरक्षा पेशेवरहरू, नेटवर्क प्रशासकहरू र दैनिक प्रयोगकर्ताहरूका लागि उपयोगी उपयोगिताहरू प्रदान गर्न डिजाइन गरिएको हो।" },
-  "about.developer": { en: "Developed by", np: "विकासकर्ता" },
+  "about.name": { en: "Hemanta Phuyal", np: "हेमन्त फूयाल" },
   "about.location": { en: "Location", np: "स्थान" },
+  "about.address": { en: "Biratnagar, Nepal", np: "विराटनगर, नेपाल" },
   "about.email": { en: "Email", np: "इमेल" },
-  "footer.copyright": { en: "© 2026 Hemanta Phuyal", np: "© २०२६ हेमन्त फुयाल" },
-  "footer.rights": { en: "All rights reserved.", np: "सर्वाधिकार सुरक्षित।" },
+  "about.developer": { en: "App Developer", np: "एप विकासकर्ता" },
+  "about.description": { en: "ClickTools Pro is a comprehensive tools directory designed to provide useful utilities for security professionals, network administrators, and everyday users.", np: "क्लिकटूल्स प्रो एक व्यापक उपकरण निर्देशिका हो जुन सुरक्षा पेशेवरहरू, नेटवर्क प्रशासकहरू र दैनिक प्रयोगकर्ताहरूका लागि उपयोगी उपयोगिताहरू प्रदान गर्न डिजाइन गरिएको हो।" },
+  "footer.copyright": { en: "© 2026 Hemanta Phuyal", np: "© २०२६ हेमन्त फूयाल" },
+  "footer.rights": { en: "All Rights Reserved", np: "सर्वाधिकार सुरक्षित" },
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    const saved = localStorage.getItem("theme");
-    return (saved as Theme) || "system";
-  });
-  
-  const [language, setLanguageState] = useState<Language>(() => {
-    const saved = localStorage.getItem("language");
-    return (saved as Language) || "en";
-  });
+  const [theme, setThemeState] = useState<Theme>("system");
+  const [language, setLanguageState] = useState<Language>("en");
+  const [isLoading, setIsLoading] = useState(true);
 
-  const setTheme = (newTheme: Theme) => {
+  useEffect(() => {
+    const initializeApp = async () => {
+      try {
+        // 1. Fetch saved preferences
+        const { value: savedTheme } = await Preferences.get({ key: 'user-theme' });
+        const { value: savedLang } = await Preferences.get({ key: 'user-lang' });
+
+        if (savedTheme) setThemeState(savedTheme as Theme);
+
+        // 2. Language Detection Logic
+        if (savedLang) {
+          setLanguageState(savedLang as Language);
+        } else {
+          // First launch: Detect Device Language
+          const info = await Device.getLanguageCode(); // e.g., "en" or "ne"
+          const detectedLang: Language = (info.value === 'ne' || info.value === 'np') ? 'np' : 'en';
+          
+          setLanguageState(detectedLang);
+          // Save detected language so it persists
+          await Preferences.set({ key: 'user-lang', value: detectedLang });
+        }
+      } catch (error) {
+        console.error("Initialization Error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeApp();
+  }, []);
+
+  // 3. Persist Theme on change
+  const setTheme = async (newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem("theme", newTheme);
+    await Preferences.set({ key: 'user-theme', value: newTheme });
   };
 
-  const setLanguage = (newLang: Language) => {
+  // 4. Persist Language on change
+  const setLanguage = async (newLang: Language) => {
     setLanguageState(newLang);
-    localStorage.setItem("language", newLang);
     document.body.setAttribute("data-lang", newLang);
+    await Preferences.set({ key: 'user-lang', value: newLang });
   };
 
   const t = (key: string): string => {
     return translations[key]?.[language] || key;
   };
 
+  // ✅ Effect to handle Theme class changes on the HTML element
   useEffect(() => {
-    document.body.setAttribute("data-lang", language);
-  }, [language]);
+    if (isLoading) return;
 
-  useEffect(() => {
     const root = window.document.documentElement;
     root.classList.remove("light", "dark");
 
     if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
       root.classList.add(systemTheme);
     } else {
       root.classList.add(theme);
     }
-  }, [theme]);
+    
+    document.body.setAttribute("data-lang", language);
+  }, [theme, language, isLoading]);
+
+  // ✅ Prevent rendering until settings are ready to avoid visual glitches
+  if (isLoading) return null;
 
   return (
     <AppContext.Provider value={{ theme, setTheme, language, setLanguage, t }}>

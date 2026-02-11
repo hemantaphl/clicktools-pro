@@ -17,7 +17,15 @@ import {
   FileText,
   Percent,
   CalendarDays,
-  LucideIcon 
+  LucideIcon, 
+  FileCheck,
+  Search,
+  Activity,
+  Coins,
+  ArrowRightLeft,
+  Ruler,
+  Languages,
+  CheckCircle
 } from "lucide-react";
 
 export type ToolStatus = "available" | "coming-soon";
@@ -51,6 +59,43 @@ export const tools: Tool[] = [
     status: "available",
     category: "finance",
     icon: Calculator,
+    isNew: true,
+  },
+  {
+    id: "unit-converter",
+    name: "Unit Converter",
+    description: "Convert between units of length, weight, temperature & more",
+    status: "available",
+    category: "utilities",
+    icon: Ruler,
+    isNew: true,
+  },
+  {
+    id: "currency-converter",
+    name: "Currency Converter",
+    description: "Real-time exchange rate.",
+    status: "available",
+    category: "finance",
+    icon: Coins,
+    isNew: true,
+  },
+  {
+    id: "age-calculator",
+    name: "Age Calculator",
+    description: "Calculate age from birth date",
+    status: "available",
+    category: "others",
+    icon: CalendarDays,
+    isNew: true,
+  },
+  {
+    id: "date-converter",
+    name: "Date Converter",
+    description: "Convert dates between AD and BS calendars",
+    status: "available",
+    category: "others",
+    icon: ArrowRightLeft,
+    isNew: true,
   },
   {
     id: "subnet-calculator",
@@ -59,14 +104,7 @@ export const tools: Tool[] = [
     status: "available",
     category: "network",
     icon: Layers,
-  },
-  {
-    id: "hash-generator",
-    name: "Hash Generator",
-    description: "Generate MD5, SHA-1, SHA-256, SHA-512 hashes with HMAC",
-    status: "available",
-    category: "security",
-    icon: Hash,
+    isNew: true,
   },
   {
     id: "password-strength",
@@ -75,25 +113,24 @@ export const tools: Tool[] = [
     status: "available",
     category: "security",
     icon: Shield,
-  },
-  
-  // Coming Soon Tools
-  {
-    id: "ip-checker",
-    name: "IP Checker",
-    description: "Check your public IP address and geolocation",
-    status: "available",
-    category: "network",
-    icon: Globe,
     isNew: true,
   },
   {
     id: "port-checker",
     name: "Port Checker",
-    description: "Check if specific ports are open on a target host",
+    description: "Check real time open or closed network ports",
     status: "available",
     category: "network",
     icon: Network,
+    isNew: true,
+  },
+  {
+    id: "ssl-checker",
+    name: "SSL Checker",
+    description: "Check SSL certificate validity and details",
+    status: "available",
+    category: "security",
+    icon: Lock,
     isNew: true,
   },
   {
@@ -106,13 +143,90 @@ export const tools: Tool[] = [
     isNew: true,
   },
   {
+    id: "hash-generator",
+    name: "Hash Generator",
+    description: "Generate MD5, SHA-1, SHA-256, SHA-512 hashes with HMAC",
+    status: "available",
+    category: "security",
+    icon: Hash,
+    isNew: true,
+  },
+  {
+    id: "color-picker",
+    name: "Color Picker",
+    description: "Pick and copy HEX or RGB color codes",
+    status: "available",
+    category: "others",
+    icon: Palette,
+    isNew: true,
+  },
+
+
+
+
+  // Coming Soon Tools
+  {
+    id: "dns-lookup",
+    name: "DNS Lookup",
+    description: "Check A, MX, and TXT records for any domain",
+    status: "coming-soon",
+    category: "network",
+    icon: Search,
+  },
+  {
+    id: "ping-test",
+    name: "Ping Test",
+    description: "Check the latency/response time of a specific server.",
+    status: "coming-soon",
+    category: "network",
+    icon: Activity,
+  },
+
+{
+  id: "nepali-unicode",
+  name: "Nepali Unicode",
+  description: "Type Nepali text using Roman letters and convert to Unicode नेपाली.",
+  status: "coming-soon",
+  category: "others",
+  icon: Languages,
+},
+{
+  id: "eligibility-checker",
+  name: "Eligibility Checker",
+  description: "Check eligibility based on age and date (BS & AD supported).",
+  status: "coming-soon",
+  category: "others",
+  icon: CheckCircle,
+}
+
+
+  
+  // Coming Soon Tools
+  /*{
+    id: "ip-checker",
+    name: "IP Checker",
+    description: "Check your public IP address and geolocation",
+    status: "coming-soon",
+    category: "network",
+    icon: Globe,
+  
+  },
+  {
+    id: "ipo-result",
+    name: "IPO Result",
+    description: "Check IPO allotment results using BOID",
+    status: "coming-soon",
+    category: "finance",
+    icon: FileCheck,
+  },
+  {
     id: "jwt-decoder",
     name: "JWT Decoder",
     description: "Decode and verify JSON Web Tokens",
     status: "coming-soon",
     category: "security",
     icon: Key,
-    isNew: true,
+    
   },
   {
     id: "uuid-generator",
@@ -121,7 +235,7 @@ export const tools: Tool[] = [
     status: "coming-soon",
     category: "utilities",
     icon: Fingerprint,
-    isNew: true,
+    
   },
   {
     id: "binary-converter",
@@ -130,27 +244,11 @@ export const tools: Tool[] = [
     status: "coming-soon",
     category: "utilities",
     icon: Binary,
-    isNew: true,
+    
   },
-  {
-    id: "ssl-checker",
-    name: "SSL Checker",
-    description: "Check SSL certificate validity and details",
-    status: "available",
-    category: "security",
-    icon: Lock,
-    isNew: true,
-  },
+
   // Others category
-  {
-    id: "color-picker",
-    name: "Color Picker",
-    description: "Pick and convert colors between formats",
-    status: "available",
-    category: "others",
-    icon: Palette,
-    isNew: true,
-  },
+
   {
     id: "timestamp-converter",
     name: "Timestamp Tool",
@@ -158,7 +256,7 @@ export const tools: Tool[] = [
     status: "coming-soon",
     category: "others",
     icon: Clock,
-    isNew: true,
+    
   },
   {
     id: "lorem-generator",
@@ -167,7 +265,7 @@ export const tools: Tool[] = [
     status: "coming-soon",
     category: "others",
     icon: FileText,
-    isNew: true,
+    
   },
   {
     id: "percentage-calc",
@@ -176,17 +274,9 @@ export const tools: Tool[] = [
     status: "coming-soon",
     category: "finance",
     icon: Percent,
-    isNew: true,
+    
   },
-  {
-    id: "age-calculator",
-    name: "Age Calculator",
-    description: "Calculate age in AD & BS with date conversion",
-    status: "available",
-    category: "others",
-    icon: CalendarDays,
-    isNew: true,
-  },
+ */
 ];
 
 export const categories: { id: ToolCategory | "all"; label: string; labelNp: string; icon?: LucideIcon }[] = [
